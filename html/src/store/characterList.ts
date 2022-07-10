@@ -1,7 +1,7 @@
 import {fetchNui} from '../utils/fetchNui';
 import {writable} from 'svelte/store';
 import type {Writable} from 'svelte/store';
-
+import {isEnvBrowser} from '../utils/misc';
 interface Character {
 	firstname: string;
 	lastname: string;
@@ -24,6 +24,7 @@ interface Data {
 	newChar: Character;
 	openCharWindows: boolean;
 	newCharAcceptButton: boolean;
+	openUI: boolean;
 }
 
 const store = () => {
@@ -32,6 +33,7 @@ const store = () => {
 		newChar: writable({}),
 		openCharWindows: writable(false),
 		newCharAcceptButton: writable(false),
+		openUI: writable(isEnvBrowser()),
 	};
 	const {subscribe, set, update} = writable(miniArrays);
 	const methods = {
@@ -51,6 +53,7 @@ const store = () => {
 			});
 		},
 		async createNewCharacter(data: Character) {
+			miniArrays.newChar.set(data);
 			miniArrays.newCharAcceptButton.set(true);
 			await fetchNui('createCharacter', data).then((cb) => {
 				if (cb) {

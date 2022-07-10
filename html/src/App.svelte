@@ -4,21 +4,19 @@
 	import BoxWithoutData from './components/BoxWithoutData.svelte';
 	import CreateNewPlayer from './components/CreateNewPlayer.svelte';
 	import {fetchNui} from './utils/fetchNui';
-	import {isEnvBrowser} from './utils/misc';
+	import spawn from './store/spawnUI';
 	import {useNuiEvent} from './utils/useNuiEvent';
 	import SCharacter from './store/selectedCharacter';
 	import SpawnUi from './components/SpawnUI.svelte';
-	import spawn from './store/spawnUI';
 	import DeleteCharacter from './components/DeleteCharacter.svelte';
 	import {onDestroy, to_number} from 'svelte/internal';
 	import CreatePlayer from './store/characterList';
-	let open = isEnvBrowser(); //Handle open state of the entire screen
 	let nPlayer = false; // this will lock the nui on a modal, preventing pointer events
 	$: ARR = [0, 1, 2, 3, 4, 5];
 	let del = false;
 	let container: HTMLDivElement;
 	let currentLocation = 'lastlocation';
-	const {openCharWindows, charList} = CreatePlayer;
+	const {openCharWindows, charList, openUI} = CreatePlayer;
 	$: ss = null;
 	$: sw = 0;
 	$: jericoFX = '';
@@ -36,7 +34,7 @@
 		sw = 0;
 	};
 	useNuiEvent('openMulticharacter', ({o, data, nCharacter, spawnData}) => {
-		open = o;
+		$openUI = o;
 		CreatePlayer.setCharacters(data);
 		ARR.length = to_number(nCharacter);
 		spawn.addNewLocations(spawnData);
@@ -48,14 +46,13 @@
 	});
 	function ResetAndClose() {
 		jericoFX = '';
-		open = false;
+		$openUI = false;
 		ss = null;
 		sw = 0;
 		cid = 0;
 		ARR = [0, 1, 2, 3, 4];
 		$charList.length = 0;
 		nPlayer = false;
-		open = false;
 		del = false;
 		spawn.reset();
 	}
@@ -89,7 +86,7 @@
 	});
 </script>
 
-{#if open}
+{#if $openUI}
 	<div bind:this={container}>
 		<CreateNewPlayer {cid} open={$openCharWindows} on:closeModal={closeMDL} />
 	</div>

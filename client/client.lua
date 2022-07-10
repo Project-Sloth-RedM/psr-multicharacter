@@ -58,7 +58,7 @@ end
 
 --QBR
 local function createCharacter(sex)
-    local model = sex == 0 and 'mp_male' or 'mp_female'
+    local model = sex == 1 and 'mp_male' or 'mp_female'
     if (sex == 0) then
         exports['qbr-clothing']:RequestAndSetModel(model)
         Wait(1000)
@@ -85,27 +85,27 @@ end
 local function onModelErrorDetected(cid)
     exports["qbr-core"]:TriggerCallback("psr-multicharacter:server:setNewModel",function(_)end,cid)
 end
-
----Lets check first if there isnt NUI active
-RegisterNetEvent("psr-multicharacter:client:openMulticharacter",function()
-    if not IsNuiFocused() then
-    RenderMap()
+CreateThread(function() 
     Wait(200)
     if not Cache.SpawnPlace then
         Cache.SpawnPlace = {}
         for k,_ in each(Config.SpawnLocations) do
             local el = Config.SpawnLocations[k]
-            Cache.SpawnPlace[#Cache.SpawnPlace+1] = {
-                label = el.label,
-                location = el.location,
-                coords = el.coords
-            }
+                Cache.SpawnPlace[#Cache.SpawnPlace+1] = {
+                    label = el.label,
+                    location = el.location,
+                    coords = el.coords
+                }
          end
     end
+end)
+---Lets check first if there isnt NUI active
+RegisterNetEvent("psr-multicharacter:client:openMulticharacter",function(newPlayer)
+    if not IsNuiFocused() then
+    RenderMap()
+ 
     Wait(200)
     exports["qbr-core"]:TriggerCallback("psr-multicharacter:server:GetCurrentPeds", function(data, char)
-        
-        Wait(200)
         if (data and char) then
             Cache.Cam = CreateCams()
             Cache.Player = PlayerPedId()
@@ -120,7 +120,7 @@ RegisterNetEvent("psr-multicharacter:client:openMulticharacter",function()
                     cloth = el.cloth,
                     citizenid = el.charinfo.citizenid,
                     position = el.position
-                }
+                }       
             end
             SendNUIMessage({
                 action = "openMulticharacter",
@@ -169,9 +169,9 @@ CreateThread(function()
         DrawLightWithRange(-558.91, -3776.25, 237.63+ 1.0, 255, 255, 255, 5.5, 50.0)
     end
 end)
+
 RegisterNUICallback("selectedCharacter", function(data, cb)
     local cid = data.citizenid
-    print("JERICOFXXX")
     if Cache.SpawnedPed then
         DeletePed(Cache.SpawnedPed)
         SetModelAsNoLongerNeeded(Cache.SpawnedPed)
@@ -206,7 +206,6 @@ RegisterNUICallback("selectedCharacter", function(data, cb)
 end)
 RegisterNUICallback("createCharacter", function(data, cb)
     local cData = data
-    
     DoScreenFadeOut(150)
     Wait(200)
     DestroyAllCams(true)
@@ -215,20 +214,31 @@ RegisterNUICallback("createCharacter", function(data, cb)
     DeleteEntity(Cache.SpawnedPed)
     SetModelAsNoLongerNeeded(Cache.SpawnedPed)
     TriggerServerEvent('psr-multicharacter:server:CreateNewCharacter', cData)
-    Wait(1000)
     DoScreenFadeIn(1000)
+    Wait(1000)
    cb("ok")
 end)
 
 
 RegisterNUICallback("spawnSelectedCharacter",function(data,cb)
-    print(Cache.SpawnedPed)
-        DoScreenFadeOut(200)
-        Wait(300)
+     
+    
     local cData = data
+    if cData.location == "lastlocation" then
+        local Coords = vector3(Cache[cData.citizenid].position.x, Cache[cData.citizenid].position.y, Cache[cData.citizenid].position.z)
+        local old = vector3(-558.91, -3776.25, 237.63)
+        if #(Coords - old) < 70 then
+            cb(false)
+            exports["qbr-core"]:Notify(2,"ERROR","Please select another spawn point")
+            return
+        end
+    end
+    DoScreenFadeOut(200)
+    Wait(300)
+
+
     local model = IsPedMale(Cache.SpawnedPed) and 1 or 0
     if DoesEntityExist(Cache.SpawnedPed) then
-        print("Porque no lo borras?")
         DeletePed(Cache.SpawnedPed)
         SetEntityAsNoLongerNeeded(Cache.SpawnedPed)
     end
@@ -308,14 +318,19 @@ RegisterNUICallback("spawnSelectedCharacter",function(data,cb)
 end)
 RegisterCommand("fixfade",function(_,__)
    -- DoScreenFadeIn(0)
-
 end)
 RegisterNUICallback("deleteCurrentCharacter",function(data,cb) 
     local cData = data.citizenid
     DoScreenFadeOut(150)
     Wait(200)
     if Cache[cData] then
+        if Cache.SpawnedPed then
+            DeletePed(Cache.SpawnedPed)
+            SetModelAsNoLongerNeeded(Cache.SpawnedPed)
+            Cache.SpawnedPed = nil
+        end
         Cache[cData] = nil
+
       end
     exports["qbr-core"]:TriggerCallback("psr-multicharacter:server:deleteCurrentCharacter",function(result)
     if result then

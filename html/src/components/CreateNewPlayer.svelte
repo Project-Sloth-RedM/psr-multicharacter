@@ -18,6 +18,7 @@
 		gender: 'Male',
 		date: new Date(),
 		cid: cid,
+		newplayer: true,
 	};
 	$: checkNewName = newCharacter.firstname.length <= 0 || newCharacter.lastname.length <= 0 || newCharacter.nationality.length <= 0;
 	$: {

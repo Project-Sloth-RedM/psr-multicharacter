@@ -1,7 +1,8 @@
 import {writable} from 'svelte/store';
 import {fetchNui} from '../utils/fetchNui';
 import {isEnvBrowser} from '../utils/misc';
-
+import characterList from './characterList';
+import spawnUI from './spawnUI';
 interface characterInfo {
 	citizenid: string;
 }
@@ -24,7 +25,14 @@ const store = () => {
 		},
 		async spawnSelectedCharacter(cid: string, location: string) {
 			if (!isEnvBrowser()) {
-				await fetchNui('spawnSelectedCharacter', {citizenid: cid, location: location});
+				await fetchNui('spawnSelectedCharacter', {citizenid: cid, location: location}).then((cb) => {
+					if (cb) {
+						characterList.openUI.set(false);
+					} else {
+						characterList.openUI.set(true);
+						spawnUI.console.log('ERROR ON SPAWN');
+					}
+				});
 				cache = '';
 			}
 		},
