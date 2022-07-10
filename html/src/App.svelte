@@ -6,34 +6,32 @@
 	import {fetchNui} from './utils/fetchNui';
 	import {isEnvBrowser} from './utils/misc';
 	import {useNuiEvent} from './utils/useNuiEvent';
-	import CreatePlayer from './store/characterList';
 	import SCharacter from './store/selectedCharacter';
-	import {openNewCharacterWindow} from './store/characterCreation';
 	import SpawnUi from './components/SpawnUI.svelte';
 	import spawn from './store/spawnUI';
 	import DeleteCharacter from './components/DeleteCharacter.svelte';
 	import {onDestroy, to_number} from 'svelte/internal';
+	import CreatePlayer from './store/characterList';
 	let open = isEnvBrowser(); //Handle open state of the entire screen
 	let nPlayer = false; // this will lock the nui on a modal, preventing pointer events
-	$: ARR = [0, 1, 2, 3, 4, 5, 6, 7];
+	$: ARR = [0, 1, 2, 3, 4, 5];
 	let del = false;
 	let container: HTMLDivElement;
 	let currentLocation = 'lastlocation';
-
+	const {openCharWindows, charList} = CreatePlayer;
 	$: ss = null;
 	$: sw = 0;
 	$: jericoFX = '';
 	$: cid = 0;
-
 	const newPlayer = (i: number) => {
 		cid = i + 1;
-		$openNewCharacterWindow = true;
+		$openCharWindows = true;
 		nPlayer = true;
 		ss = null;
 		sw = 0;
 	};
 	const closeMDL = () => {
-		$openNewCharacterWindow = false;
+		$openCharWindows = false;
 		nPlayer = false;
 		sw = 0;
 	};
@@ -55,7 +53,7 @@
 		sw = 0;
 		cid = 0;
 		ARR = [0, 1, 2, 3, 4];
-		$CreatePlayer.length = 0;
+		$charList.length = 0;
 		nPlayer = false;
 		open = false;
 		del = false;
@@ -63,10 +61,9 @@
 	}
 
 	function RegisterNewCharacter() {
-		$CreatePlayer.forEach((element) => {
+		$charList.forEach((element) => {
 			ARR[element.cid - 1] = element;
 		});
-		console.table(JSON.stringify(ARR));
 	}
 
 	function onSelectedCitizenid(e: string): void {
@@ -75,7 +72,6 @@
 		sw = 0;
 		ss = 0;
 	}
-	$: console.log($CreatePlayer);
 	const handleSpawn = () => {
 		if (jericoFX !== '' && currentLocation !== '') {
 			SCharacter.spawnSelectedCharacter(jericoFX, currentLocation);
@@ -95,7 +91,7 @@
 
 {#if open}
 	<div bind:this={container}>
-		<CreateNewPlayer {cid} open={$openNewCharacterWindow} on:closeModal={closeMDL} />
+		<CreateNewPlayer {cid} open={$openCharWindows} on:closeModal={closeMDL} />
 	</div>
 	<div class:no-pointer-events={nPlayer} transition:fly={{x: -15}} class="container absolute-center 			non-selectable fit scroll hide-scrollbar  " style:left="13vw">
 		<div class="imagebackground absolute-center " style="width:26vw">

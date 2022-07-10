@@ -1,15 +1,17 @@
 <script lang="ts">
 	import {createEventDispatcher} from 'svelte';
+	import {empty} from 'svelte/internal';
 	import {fade} from 'svelte/transition';
 	import Buttons from '../lib/Buttons.svelte';
 	import InputDate from '../lib/Input-date.svelte';
 	import Inputs from '../lib/Inputs.svelte';
 	import Selection from '../lib/Selection.svelte';
 	export let cid = 0;
-	import characterCreation from '../store/characterCreation';
+	import characterCreation from '../store/characterList';
 	const dispatch = createEventDispatcher();
+	const {newCharAcceptButton} = characterCreation;
 	export let open = false;
-	$: newCharacter = {
+	let newCharacter = {
 		firstname: '',
 		lastname: '',
 		nationality: '',
@@ -17,10 +19,10 @@
 		date: new Date(),
 		cid: cid,
 	};
-	$: checkEmptyData = newCharacter.firstname === '' || newCharacter.lastname === '' || newCharacter.nationality === '';
+	$newCharAcceptButton = newCharacter.firstname === '' || newCharacter.lastname === '' || newCharacter.nationality === '' || newCharacter.date === null;
 
 	const Create = () => {
-		if (!checkEmptyData) {
+		if (!newCharAcceptButton) {
 			characterCreation.createNewCharacter(newCharacter);
 		}
 	};
@@ -46,7 +48,7 @@
 			<div class="buttons absolute-center" style="width:45vw;height:10vh; top:54vh;">
 				<div class="relative-position fit flex row justify-around items-center">
 					<Buttons type="cancel" checkEmptyData={false} onClick={() => (dispatch('closeModal'), (open = false))} text="Cancel" />
-					<Buttons onClick={Create} {checkEmptyData} text="Accept" />
+					<Buttons onClick={Create} checkEmptyData={newCharAcceptButton} text="Accept" />
 				</div>
 			</div>
 		</div>

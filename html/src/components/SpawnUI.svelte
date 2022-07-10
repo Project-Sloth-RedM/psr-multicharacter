@@ -9,7 +9,7 @@
 
 <div transition:fade class="spawnPoint absolute-right non-selectable" style:top="3vw">
 	<div class="background relative-position">
-		<img src="img/spawnBG.svg" style:width="20vw" alt="" />
+		<img src="img/spawnBG.png" style:width="20vw" alt="" />
 		<div class="title-spawn absolute-center" style:top="7vw">
 			<img src="img/hud_menu_5a.png" style:width="17.5vw" alt="" />
 			<p class="absolute-center full-width text-h4 text-center">Select Spawn</p>

@@ -1,6 +1,15 @@
 import {fetchNui} from '../utils/fetchNui';
 import {writable} from 'svelte/store';
 import type {Writable} from 'svelte/store';
+
+interface Character {
+	firstname: string;
+	lastname: string;
+	gender: string;
+	nationality: string;
+	date: Date;
+	cid: number;
+}
 interface CharacterList {
 	charinfo: {
 		citizenid: string;
@@ -10,31 +19,44 @@ interface CharacterList {
 	};
 	cid: number;
 }
+interface Data {
+	charList: CharacterList;
+	newChar: Character;
+	openCharWindows: boolean;
+	newCharAcceptButton: boolean;
+}
 
 const store = () => {
 	const miniArrays = {
-		myPlayers: writable([]),
+		charList: writable([{}]),
+		newChar: writable({}),
+		openCharWindows: writable(false),
+		newCharAcceptButton: writable(false),
 	};
-
-	const Silent = 'The Boss';
-	const {subscribe, set, update} = writable(myPlayers);
-
+	const {subscribe, set, update} = writable(miniArrays);
 	const methods = {
 		setCharacters(data: Array<CharacterList>) {
-			update((state) => {
+			miniArrays.charList.update((state) => {
 				state = data;
+				state = [...state];
+				console.log(JSON.stringify(state));
+				return state;
+			});
+		},
+		reset() {
+			miniArrays.charList.update((state) => {
+				state.length = 0;
 				state = [...state];
 				return state;
 			});
 		},
-		createNewCharacter() {
-			fetchNui('getNewCharacters');
-		},
-		reset() {
-			update((state) => {
-				state.length = 0;
-				state = [...state];
-				return state;
+		async createNewCharacter(data: Character) {
+			miniArrays.newCharAcceptButton.set(true);
+			await fetchNui('createCharacter', data).then((cb) => {
+				if (cb) {
+					miniArrays.newCharAcceptButton.set(false);
+					miniArrays.openCharWindows.set(false);
+				}
 			});
 		},
 	};
@@ -42,6 +64,7 @@ const store = () => {
 		subscribe,
 		set,
 		update,
+		...miniArrays,
 		...methods,
 	};
 };
