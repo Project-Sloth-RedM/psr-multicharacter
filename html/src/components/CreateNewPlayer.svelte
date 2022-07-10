@@ -11,7 +11,7 @@
 	const dispatch = createEventDispatcher();
 	const {newCharAcceptButton} = characterCreation;
 	export let open = false;
-	let newCharacter = {
+	$: newCharacter = {
 		firstname: '',
 		lastname: '',
 		nationality: '',
@@ -19,10 +19,17 @@
 		date: new Date(),
 		cid: cid,
 	};
-	$newCharAcceptButton = newCharacter.firstname === '' || newCharacter.lastname === '' || newCharacter.nationality === '' || newCharacter.date === null;
+	$: checkNewName = newCharacter.firstname.length <= 0 || newCharacter.lastname.length <= 0 || newCharacter.nationality.length <= 0;
+	$: {
+		if (!checkNewName) {
+			$newCharAcceptButton = false;
+		} else {
+			$newCharAcceptButton = true;
+		}
+	}
 
 	const Create = () => {
-		if (!newCharAcceptButton) {
+		if (!$newCharAcceptButton) {
 			characterCreation.createNewCharacter(newCharacter);
 		}
 	};
@@ -48,7 +55,7 @@
 			<div class="buttons absolute-center" style="width:45vw;height:10vh; top:54vh;">
 				<div class="relative-position fit flex row justify-around items-center">
 					<Buttons type="cancel" checkEmptyData={false} onClick={() => (dispatch('closeModal'), (open = false))} text="Cancel" />
-					<Buttons onClick={Create} checkEmptyData={newCharAcceptButton} text="Accept" />
+					<Buttons onClick={Create} checkEmptyData={$newCharAcceptButton} text="Accept" />
 				</div>
 			</div>
 		</div>
