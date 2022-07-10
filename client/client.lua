@@ -225,13 +225,12 @@ end)
 
 
 RegisterNUICallback("spawnSelectedCharacter",function(data,cb)
-     
-    
     local cData = data
     if cData.location == "lastlocation" then
         local Coords = vector3(Cache[cData.citizenid].position.x, Cache[cData.citizenid].position.y, Cache[cData.citizenid].position.z)
         local old = vector3(-558.91, -3776.25, 237.63)
-        if #(Coords - old) < 70 then
+        local default = vector3(2556.46, -1159.73, 53.7)
+        if #(Coords - old) < 70 or #(Coords-default) < 30 then
             cb(false)
             exports["qbr-core"]:Notify(2,"ERROR","Please select another spawn point")
             return
@@ -239,8 +238,6 @@ RegisterNUICallback("spawnSelectedCharacter",function(data,cb)
     end
     DoScreenFadeOut(200)
     Wait(300)
-
-
     local model = IsPedMale(Cache.SpawnedPed) and 1 or 0
     if DoesEntityExist(Cache.SpawnedPed) then
         DeletePed(Cache.SpawnedPed)
