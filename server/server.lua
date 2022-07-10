@@ -74,7 +74,7 @@ RegisterNetEvent("psr-multicharacter:server:CreateNewCharacter", function(data)
   end
 end)
 
----This function will check if the CID and License match in the db
+---This function will check if the CID and License match in the db, if it pass the first check it will trigger the deletion, after that just to be sure it will check if there are some existing rows on the db
 ---@param source number
 ---@param cb boolean
 ---@param cid string
@@ -89,6 +89,23 @@ QBRCore:CreateCallback("psr-multicharacter:server:deleteCurrentCharacter", funct
     { License, cid })
   if Res.EX == 1 then
     QBRCore:DeleteCharacter(source, cid)
+    Wait(200)
+    local citizenid = MySQL.single.await("SELECT EXISTS(SELECT 1 FROM players WHERE citizenid = ?) AS CID",
+      { cid })
+    if citizenid.CID == 1 then
+      MySQL.prepare("DELETE FROM players WHERE citizenid = ?", { cid }, function(result)
+        log(result)
+        print("Abnormal termination on DELETE CHARACTER, manually Delete Triggered")
+      end)
+    end
+    local Skins = MySQL.single.await("SELECT EXISTS(SELECT 1 FROM playerskins WHERE citizenid = ?) AS Skin",
+      { cid })
+    if Skins == 1 then
+      MySQL.prepare("DELETE FROM playerskins WHERE citizenid = ?", { cid }, function(result)
+        log(result)
+        print("Abnormal termination on DELETE CHARACTER, manually Delete Triggered")
+      end)
+    end
     print("Character " .. cid .. " Was Deleted")
     Wait(200)
     TriggerClientEvent("psr-multicharacter:client:closeNuiWindow", source)
