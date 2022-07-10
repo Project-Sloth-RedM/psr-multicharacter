@@ -42,6 +42,9 @@ local function RenderMap()
     RequestImap(1679934574)
     RequestImap(183712523)
     GetInteriorAtCoords(-558.9098, -3775.616, 238.59, 137.98)
+    Wait(1500)
+    ShutdownLoadingScreen()
+    ShutdownLoadingScreenNui()
     FreezeEntityPosition(PlayerPedId(), true)
     SetEntityCoords(PlayerPedId(), -562.91, -3776.25, 237.63)
 end
@@ -105,6 +108,7 @@ RegisterNetEvent("psr-multicharacter:client:openMulticharacter",function(newPlay
     RenderMap()
  
     Wait(200)
+    
     exports["qbr-core"]:TriggerCallback("psr-multicharacter:server:GetCurrentPeds", function(data, char)
         if (data and char) then
             Cache.Cam = CreateCams()

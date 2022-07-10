@@ -25,6 +25,7 @@ interface Data {
 	openCharWindows: boolean;
 	newCharAcceptButton: boolean;
 	openUI: boolean;
+	closeOnErrorSpawn: boolean;
 }
 
 const store = () => {
@@ -34,6 +35,7 @@ const store = () => {
 		openCharWindows: writable(false),
 		newCharAcceptButton: writable(false),
 		openUI: writable(isEnvBrowser()),
+		closeOnErrorSpawn: writable(false),
 	};
 	const {subscribe, set, update} = writable(miniArrays);
 	const methods = {

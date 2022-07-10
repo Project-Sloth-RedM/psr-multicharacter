@@ -3,7 +3,6 @@ interface SpawnUIData {
 	coords: Object;
 	location: string;
 	label: string;
-	canspawn: boolean;
 }
 const store = () => {
 	const defaultSpawn = [
@@ -11,7 +10,6 @@ const store = () => {
 			coords: {},
 			location: 'lastlocation',
 			label: 'Last Location',
-			canspawn: true,
 		},
 	];
 	const {subscribe, set, update} = writable(defaultSpawn);

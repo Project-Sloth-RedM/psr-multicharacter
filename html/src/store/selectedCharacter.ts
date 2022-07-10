@@ -30,6 +30,7 @@ const store = () => {
 						characterList.openUI.set(false);
 					} else {
 						characterList.openUI.set(true);
+						characterList.closeOnErrorSpawn.set(true);
 						spawnUI.console.log('ERROR ON SPAWN');
 					}
 				});

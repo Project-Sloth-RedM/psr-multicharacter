@@ -11,12 +11,13 @@
 	import DeleteCharacter from './components/DeleteCharacter.svelte';
 	import {onDestroy, to_number} from 'svelte/internal';
 	import CreatePlayer from './store/characterList';
+	import ModalOnError from './components/ModalOnError.svelte';
 	let nPlayer = false; // this will lock the nui on a modal, preventing pointer events
 	$: ARR = [0, 1, 2, 3, 4, 5];
 	let del = false;
 	let container: HTMLDivElement;
 	let currentLocation = 'lastlocation';
-	const {openCharWindows, charList, openUI} = CreatePlayer;
+	const {openCharWindows, charList, openUI, closeOnErrorSpawn} = CreatePlayer;
 	$: ss = null;
 	$: sw = 0;
 	$: jericoFX = '';
@@ -118,6 +119,9 @@
 	{/if}
 	{#if del}
 		<DeleteCharacter closeNui={closeDeleteModal} citizenid={jericoFX} open={del} />
+	{/if}
+	{#if $closeOnErrorSpawn}
+		<ModalOnError />
 	{/if}
 {/if}
 
