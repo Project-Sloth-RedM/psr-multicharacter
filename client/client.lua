@@ -360,6 +360,7 @@ end)
 
 CreateThread(function()
    while not Loaded do
+    Wait(100)
     if  NetworkIsSessionStarted() then
         TriggerEvent('psr-multicharacter:client:openMulticharacter')
         Loaded = true
