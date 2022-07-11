@@ -5,6 +5,20 @@ end
 local Loaded = false
 local CreateNewPlayer = false
 --Local Functions
+local function CreateCacheCoords()
+    if not Cache.SpawnPlace then
+        Cache.SpawnPlace = {}
+        for k,_ in each(Config.SpawnLocations) do
+            local el = Config.SpawnLocations[k]
+                Cache.SpawnPlace[#Cache.SpawnPlace+1] = {
+                    label = el.label,
+                    location = el.location,
+                    coords = el.coords
+                }
+         end
+    end
+end
+
 local function RequestAndLoadModels(model)
     local CacheModel = tonumber(model)
     RequestModel(CacheModel)
@@ -88,25 +102,12 @@ end
 local function onModelErrorDetected(cid)
     exports["qbr-core"]:TriggerCallback("psr-multicharacter:server:setNewModel",function(_)end,cid)
 end
-CreateThread(function() 
-    Wait(200)
-    if not Cache.SpawnPlace then
-        Cache.SpawnPlace = {}
-        for k,_ in each(Config.SpawnLocations) do
-            local el = Config.SpawnLocations[k]
-                Cache.SpawnPlace[#Cache.SpawnPlace+1] = {
-                    label = el.label,
-                    location = el.location,
-                    coords = el.coords
-                }
-         end
-    end
-end)
+
 ---Lets check first if there isnt NUI active
 RegisterNetEvent("psr-multicharacter:client:openMulticharacter",function(newPlayer)
     if not IsNuiFocused() then
     RenderMap()
- 
+    CreateCacheCoords()
     Wait(200)
     
     exports["qbr-core"]:TriggerCallback("psr-multicharacter:server:GetCurrentPeds", function(data, char)
@@ -236,6 +237,9 @@ RegisterNUICallback("spawnSelectedCharacter",function(data,cb)
             return
         end
     end
+    if not cData.model then
+        
+
     DoScreenFadeOut(200)
     Wait(300)
     local model = IsPedMale(Cache.SpawnedPed) and 1 or 0
@@ -314,6 +318,29 @@ RegisterNUICallback("spawnSelectedCharacter",function(data,cb)
         Wait(500)
         DoScreenFadeIn(250)
     end
+else
+    TriggerEvent("psr-multicharacter:client:closeNuiWindow")
+    local NewCoords = Config.SpawnLocations[cData.location]
+    DoScreenFadeOut(500)
+    Citizen.InvokeNative(0x0A3720F162A033C9,NewCoords.coords.x, NewCoords.coords.y, NewCoords.coords.z)
+    Wait(500)
+    --Move Player to the coordinates, then request the collision, after that just loop until the collision has loaded so no pop up
+    SetEntityCoords(PlayerPedId(), NewCoords.coords.x, NewCoords.coords.y, NewCoords.coords.z)
+    while not HasCollisionLoadedAroundEntity(PlayerPedId()) do
+        Wait(100)
+        print("Loading Collision at Coords")
+    end
+    Wait(2000)
+    FreezeEntityPosition(PlayerPedId(), false)
+    TriggerServerEvent('QBCore:Server:OnPlayerLoaded')
+    TriggerEvent('QBCore:Client:OnPlayerLoaded')
+    RenderScriptCams(false, true, 500, true, true)
+    SetCamActive(Cache.Cam, false)
+    DestroyCam(Cache.Cam, true)
+    SetEntityVisible(PlayerPedId(), true)
+    Wait(500)
+    DoScreenFadeIn(250)
+end
     Cache = {}
     cb("ok")
 end)
@@ -331,7 +358,6 @@ RegisterNUICallback("deleteCurrentCharacter",function(data,cb)
             Cache.SpawnedPed = nil
         end
         Cache[cData] = nil
-
       end
     exports["qbr-core"]:TriggerCallback("psr-multicharacter:server:deleteCurrentCharacter",function(result)
     if result then
@@ -340,6 +366,34 @@ RegisterNUICallback("deleteCurrentCharacter",function(data,cb)
       end,cData)
         Wait(1000)
         DoScreenFadeIn(1000)
+end)
+
+
+
+CreateThread(function()
+   while not Loaded do
+    Wait(100)
+    if  NetworkIsSessionStarted() then
+        TriggerEvent('psr-multicharacter:client:openMulticharacter')
+        Loaded = true
+        CreateNewPlayer = true
+        print("psr-multicharacter LOADED")
+        break
+    end
+   end
+end)
+RegisterNetEvent("psr-multicharacter:client:openNewPlayer",function(data) 
+SetNuiFocus(true,true)
+    SendNUIMessage({
+        action="NewPlayerCoords",
+        data = {
+            open = 1,
+            citizenid=data,
+            coordinates = Cache.SpawnPlace,
+            newPlayer = true
+        }
+    })
+
 end)
 
 
@@ -356,17 +410,4 @@ AddEventHandler("onResourceStop", function(res)
     RenderScriptCams(0, 1, 1, false, false)
     DestroyAllCams(true)
     Cache = {}
-end)
-
-CreateThread(function()
-   while not Loaded do
-    Wait(100)
-    if  NetworkIsSessionStarted() then
-        TriggerEvent('psr-multicharacter:client:openMulticharacter')
-        Loaded = true
-        CreateNewPlayer = true
-        print("psr-multicharacter LOADED")
-        break
-    end
-   end
 end)

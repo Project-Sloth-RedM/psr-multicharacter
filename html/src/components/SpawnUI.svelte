@@ -1,8 +1,8 @@
 <script lang="ts">
 	import {fade} from 'svelte/transition';
+	import Locations from '../store/spawnUI';
 	export let sw = 0;
 	export let assign = (i: number) => {};
-	import Locations from '../store/spawnUI';
 	export let currentLocation = '';
 	export let handleSpawn = (): void => {};
 </script>

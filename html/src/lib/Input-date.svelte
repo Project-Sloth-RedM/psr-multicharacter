@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let date = '';
+	export let date = new Date();
 </script>
 
 <main>

@@ -118,6 +118,17 @@ QBRCore:CreateCallback("psr-multicharacter:server:deleteCurrentCharacter", funct
   end
 end)
 
+RegisterNetEvent("psr-multicharacter:server:openNewPlayer", function()
+  if GetInvokingResource() ~= "qbr-clothing" then
+    return
+  end
+  local src <const> = source
+  local Player = QBRCore:GetPlayer(src)
+  TriggerClientEvent("psr-multicharacter:client:closeNuiWindow", src)
+  Wait(200)
+  TriggerClientEvent("psr-multicharacter:client:openNewPlayer", src, Player.PlayerData.citizenid)
+end)
+
 ---Function to check if there is a valid model on the db
 ---@param source number
 ---@param cb any

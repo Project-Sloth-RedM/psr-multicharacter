@@ -23,15 +23,17 @@ const store = () => {
 				}
 			}
 		},
-		async spawnSelectedCharacter(cid: string, location: string) {
+		async spawnSelectedCharacter(cid: string, location: string, needmodel?: boolean) {
 			if (!isEnvBrowser()) {
-				await fetchNui('spawnSelectedCharacter', {citizenid: cid, location: location}).then((cb) => {
+				console.log(cid, location);
+
+				await fetchNui('spawnSelectedCharacter', {citizenid: cid, location: location, model: needmodel || false}).then((cb) => {
 					if (cb) {
 						characterList.openUI.set(false);
 					} else {
 						characterList.openUI.set(true);
 						characterList.closeOnErrorSpawn.set(true);
-						spawnUI.console.log('ERROR ON SPAWN');
+						console.log('ERROR ON SPAWN');
 					}
 				});
 				cache = '';

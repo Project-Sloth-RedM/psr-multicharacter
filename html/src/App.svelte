@@ -22,6 +22,7 @@
 	$: sw = 0;
 	$: jericoFX = '';
 	$: cid = 0;
+	$:needModel = false
 	const newPlayer = (i: number) => {
 		cid = i + 1;
 		$openCharWindows = true;
@@ -44,6 +45,14 @@
 	useNuiEvent('closeNUI', () => {
 		ResetAndClose();
 		fetchNui('exitMultiplayer');
+	});
+
+	useNuiEvent('NewPlayerCoords', ({open, coordinates, newPlayer, data}) => {
+		ss = open;
+		assign(1);
+		jericoFX = data; //preventing null
+		spawn.addNewLocations(coordinates, newPlayer);
+		needModel = true
 	});
 	function ResetAndClose() {
 		jericoFX = '';
@@ -72,7 +81,7 @@
 	}
 	const handleSpawn = () => {
 		if (jericoFX !== '' && currentLocation !== '') {
-			SCharacter.spawnSelectedCharacter(jericoFX, currentLocation);
+			SCharacter.spawnSelectedCharacter(jericoFX, currentLocation, needModel);
 		}
 	};
 	const assign = (i: number) => {
@@ -114,15 +123,16 @@
 			</div>
 		</div>
 	</div>
-	{#if ss !== null}
-		<SpawnUi {handleSpawn} bind:currentLocation {sw} {assign} />
-	{/if}
+
 	{#if del}
 		<DeleteCharacter closeNui={closeDeleteModal} citizenid={jericoFX} open={del} />
 	{/if}
 	{#if $closeOnErrorSpawn}
-		<ModalOnError />
+		<ModalOnError open={$closeOnErrorSpawn} />
 	{/if}
+{/if}
+{#if ss !== null}
+	<SpawnUi {handleSpawn} bind:currentLocation {sw} {assign} />
 {/if}
 
 <style>

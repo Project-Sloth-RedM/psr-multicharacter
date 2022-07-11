@@ -17,10 +17,16 @@ const store = () => {
 		subscribe,
 		set,
 		update,
-		addNewLocations: (locations) => {
+		addNewLocations: (locations, newplayer?) => {
 			update((state) => {
-				state = [...state, ...locations];
-				return state;
+				if (newplayer) {
+					state.splice(0, 1);
+					state = [...locations];
+					return state;
+				} else {
+					state = [...state, ...locations];
+					return state;
+				}
 			});
 		},
 		reset: () => {

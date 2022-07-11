@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {createEventDispatcher} from 'svelte';
-	import {empty} from 'svelte/internal';
 	import {fade} from 'svelte/transition';
 	import Buttons from '../lib/Buttons.svelte';
 	import InputDate from '../lib/Input-date.svelte';
@@ -34,6 +33,7 @@
 			characterCreation.createNewCharacter(newCharacter);
 		}
 	};
+	$: console.log(newCharacter);
 </script>
 
 {#if open}
